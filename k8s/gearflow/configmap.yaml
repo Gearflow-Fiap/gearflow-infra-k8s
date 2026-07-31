@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gearflow-configmap
+  namespace: gearflow
+data:
+  ASPNETCORE_ENVIRONMENT: "Production"
+  ASPNETCORE_HTTP_PORTS: "8080"
+  Jwt__Issuer: "GearFlow.Api"
+  Jwt__Audience: "GearFlow.Client"
+  Jwt__AccessTokenMinutes: "30"
+  Jwt__RefreshTokenDays: "7"
+  Jwt__LockoutMinutes: "15"
+  Email__Host: "smtp-service"
+  Email__Port: "1025"
+  Email__From: "sistema@gearflow.com"
+  # Substituir pelo domínio público real após o API Gateway estar provisionado
+  App__PublicBaseUrl: "https://api.gearflow.com"
+  # New Relic APM
+  CORECLR_ENABLE_PROFILING: "1"
+  CORECLR_PROFILER: "{36032161-FFC0-4B61-B559-F6C5D41BAE5A}"
+  CORECLR_NEWRELIC_HOME: "/app/newrelic"
+  CORECLR_PROFILER_PATH: "/app/newrelic/libNewRelicProfiler.so"
+  NEW_RELIC_APP_NAME: "GearFlow.Api"
+  NEW_RELIC_DISTRIBUTED_TRACING_ENABLED: "true"
+  NEW_RELIC_APPLICATION_LOGGING_ENABLED: "true"
+  NEW_RELIC_APPLICATION_LOGGING_FORWARDING_ENABLED: "true"
+  NEW_RELIC_APPLICATION_LOGGING_LOCAL_DECORATING_ENABLED: "true"
+  NEW_RELIC_LOG_LEVEL: "info"
