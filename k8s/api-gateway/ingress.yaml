@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: gearflow-ingress
+  namespace: gearflow
+  annotations:
+    # Aplica JWT em todas as rotas /api/* e rate-limit em /auth/*
+    konghq.com/plugins: gearflow-jwt,gearflow-rate-limit
+spec:
+  ingressClassName: kong
+  rules:
+    - host: api.gearflow.com
+      http:
+        paths:
+          # /auth/* → Lambdas (gearflow-lambda via ExternalName service)
+          - path: /auth
+            pathType: Prefix
+            backend:
+              service:
+                name: lambda-proxy-svc
+                port:
+                  number: 443
+          # /api/* → aplicação .NET (gearflow-app)
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: gearflow-api-service
+                port:
+                  number: 8080

@@ -1,0 +1,53 @@
+name: Terraform Apply
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "terraform/**"
+      - "k8s/**"
+
+permissions:
+  contents: read
+
+jobs:
+  apply:
+    name: terraform apply
+    runs-on: ubuntu-latest
+    environment: production
+
+    defaults:
+      run:
+        working-directory: terraform
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+        env:
+          TF_VAR_jwt_signing_key: ${{ secrets.JWT_SIGNING_KEY }}
+          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+          TF_VAR_newrelic_license_key: ${{ secrets.NEWRELIC_LICENSE_KEY }}
+          TF_VAR_db_endpoint: ${{ vars.DB_ENDPOINT }}
+          TF_VAR_db_port: ${{ vars.DB_PORT }}
+          TF_VAR_db_name: ${{ vars.DB_NAME }}
+          TF_VAR_db_user: ${{ vars.DB_USER }}
+          TF_VAR_lambda_validate_cpf_url: ${{ vars.LAMBDA_VALIDATE_CPF_URL }}
+          TF_VAR_lambda_check_client_url: ${{ vars.LAMBDA_CHECK_CLIENT_URL }}
+          TF_VAR_lambda_generate_token_url: ${{ vars.LAMBDA_GENERATE_TOKEN_URL }}

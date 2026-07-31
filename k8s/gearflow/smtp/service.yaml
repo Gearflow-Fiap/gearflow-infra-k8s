@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: smtp-service
+  namespace: gearflow
+spec:
+  selector:
+    app: smtp
+  # ClusterIP: acesso interno ao cluster apenas
+  # Para inspecionar e-mails: kubectl port-forward svc/smtp-service 8025:8025 -n gearflow
+  type: ClusterIP
+  ports:
+  - name: smtp
+    port: 1025
+    targetPort: 1025
+    protocol: TCP
+  - name: ui
+    port: 8025
+    targetPort: 8025
+    protocol: TCP

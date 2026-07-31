@@ -1,0 +1,71 @@
+# Helm values para: helm install nri-bundle newrelic/nri-bundle -n newrelic -f helm-values.yaml
+#
+# Pré-requisitos:
+#   helm repo add newrelic https://helm-charts.newrelic.com
+#   helm repo update
+#   kubectl apply -f k8s/monitoring/namespace.yaml
+#   kubectl apply -f k8s/monitoring/secret.yaml
+#
+# Instalação:
+#   helm install nri-bundle newrelic/nri-bundle \
+#     --namespace newrelic \
+#     --set global.licenseKey=$(kubectl get secret newrelic-bundle-secret -n newrelic -o jsonpath='{.data.licenseKey}' | base64 -d) \
+#     -f k8s/monitoring/helm-values.yaml
+#
+# Upgrade:
+#   helm upgrade nri-bundle newrelic/nri-bundle --namespace newrelic -f k8s/monitoring/helm-values.yaml \
+#     --set global.licenseKey=<KEY>
+#
+# Nota: quando Terraform estiver configurado, o monitoring.tf gerencia este Helm release automaticamente.
+
+global:
+  cluster: "gearflow-cluster"
+  lowDataMode: true
+
+newrelic-infrastructure:
+  enabled: true
+  privileged: true
+  kubelet:
+    resources:
+      limits:
+        memory: 300Mi
+        cpu: 200m
+      requests:
+        memory: 100Mi
+        cpu: 50m
+  controlPlane:
+    resources:
+      limits:
+        memory: 200Mi
+        cpu: 100m
+      requests:
+        memory: 64Mi
+        cpu: 25m
+  ksm:
+    resources:
+      limits:
+        memory: 200Mi
+        cpu: 100m
+      requests:
+        memory: 64Mi
+        cpu: 25m
+
+kube-state-metrics:
+  enabled: true
+
+nri-kube-events:
+  enabled: true
+
+# Fluent Bit desativado: APM .NET já encaminha logs via NEW_RELIC_APPLICATION_LOGGING_FORWARDING_ENABLED
+newrelic-logging:
+  enabled: false
+
+nri-prometheus:
+  enabled: true
+  config:
+    kubernetes:
+      integrations_filter:
+        enabled: true
+
+newrelic-pixie:
+  enabled: false

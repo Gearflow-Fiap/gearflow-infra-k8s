@@ -1,0 +1,10 @@
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: gearflow-rate-limit
+  namespace: gearflow
+plugin: rate-limiting
+config:
+  minute: 10
+  policy: local
+  limit_by: ip
