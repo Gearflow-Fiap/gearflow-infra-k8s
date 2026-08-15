@@ -24,26 +24,35 @@ module "vpc" {
 }
 
 # ── EKS Cluster ───────────────────────────────────────────────────────────
-module "eks" {
-  source  = "terraform-aws-modules/eks/aws"
-  version = "~> 20.0"
+# Usando recursos nativos para evitar iam:GetRole bloqueado no AWS Academy
+resource "aws_eks_cluster" "gearflow" {
+  name     = var.cluster_name
+  version  = "1.31"
+  role_arn = "arn:aws:iam::269224082939:role/LabRole"
 
-  cluster_name    = var.cluster_name
-  cluster_version = "1.29"
-
-  cluster_endpoint_public_access = true
-
-  vpc_id     = module.vpc.vpc_id
-  subnet_ids = module.vpc.private_subnets
-
-  eks_managed_node_groups = {
-    default = {
-      instance_types = [var.node_instance_type]
-      min_size       = 1
-      max_size       = 3
-      desired_size   = 1
-    }
+  vpc_config {
+    subnet_ids              = module.vpc.private_subnets
+    endpoint_public_access  = true
+    endpoint_private_access = true
   }
+
+  depends_on = [module.vpc]
+}
+
+resource "aws_eks_node_group" "default" {
+  cluster_name    = aws_eks_cluster.gearflow.name
+  node_group_name = "default"
+  node_role_arn   = "arn:aws:iam::269224082939:role/LabRole"
+  subnet_ids      = module.vpc.private_subnets
+  instance_types  = [var.node_instance_type]
+
+  scaling_config {
+    desired_size = 1
+    max_size     = 3
+    min_size     = 1
+  }
+
+  depends_on = [aws_eks_cluster.gearflow]
 }
 
 # ── Namespaces ────────────────────────────────────────────────────────────
@@ -52,5 +61,5 @@ resource "kubernetes_namespace" "gearflow" {
   metadata {
     name = "gearflow"
   }
-  depends_on = [module.eks]
+  depends_on = [aws_eks_node_group.default]
 }

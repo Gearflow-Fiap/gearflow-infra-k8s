@@ -7,8 +7,8 @@ resource "kubernetes_secret" "gearflow" {
   }
 
   data = {
-    "ConnectionStrings__DefaultConnection" = "Server=${var.db_endpoint},${var.db_port};Database=${var.db_name};User Id=${var.db_user};Password=${var.db_password};Encrypt=True;TrustServerCertificate=False"
-    "Jwt__SigningKey"                      = var.jwt_signing_key
+    "ConnectionStrings__GearFlow" = "Server=${var.db_endpoint},${var.db_port};Database=${var.db_name};User Id=${var.db_user};Password=${var.db_password};Encrypt=True;TrustServerCertificate=True"
+    "Jwt__Secret"                 = var.jwt_signing_key
   }
 }
 

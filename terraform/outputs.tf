@@ -1,11 +1,11 @@
 output "cluster_name" {
   description = "Nome do cluster EKS criado"
-  value       = module.eks.cluster_name
+  value       = aws_eks_cluster.gearflow.name
 }
 
 output "cluster_endpoint" {
   description = "Endpoint da API do cluster EKS"
-  value       = module.eks.cluster_endpoint
+  value       = aws_eks_cluster.gearflow.endpoint
 }
 
 output "api_gateway_endpoint" {
@@ -20,5 +20,5 @@ output "mailpit_ui_access" {
 
 output "configure_kubectl" {
   description = "Comando para configurar o kubectl apontando para este cluster"
-  value       = "aws eks update-kubeconfig --region ${var.aws_region} --name ${module.eks.cluster_name}"
+  value       = "aws eks update-kubeconfig --region ${var.aws_region} --name ${aws_eks_cluster.gearflow.name}"
 }

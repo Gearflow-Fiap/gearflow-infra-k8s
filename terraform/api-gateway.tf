@@ -6,13 +6,15 @@ resource "helm_release" "kong" {
   namespace        = "kong"
   create_namespace = true
   version          = "~> 0.4"
+  timeout          = 600
+  wait             = false
 
   set {
     name  = "gateway.service.type"
     value = "LoadBalancer"
   }
 
-  depends_on = [module.eks]
+  depends_on = [aws_eks_node_group.default]
 }
 
 # ── Namespace para o proxy das Lambdas ────────────────────────────────────
@@ -20,7 +22,7 @@ resource "kubernetes_namespace" "lambda_proxy" {
   metadata {
     name = "lambda-proxy"
   }
-  depends_on = [module.eks]
+  depends_on = [aws_eks_node_group.default]
 }
 
 # ── Service apontando para as Lambdas via ExternalName ────────────────────

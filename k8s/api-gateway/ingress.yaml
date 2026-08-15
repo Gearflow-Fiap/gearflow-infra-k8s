@@ -9,8 +9,7 @@ metadata:
 spec:
   ingressClassName: kong
   rules:
-    - host: api.gearflow.com
-      http:
+    - http:
         paths:
           # /auth/* → Lambdas (gearflow-lambda via ExternalName service)
           - path: /auth

@@ -5,6 +5,8 @@ resource "helm_release" "newrelic" {
   chart            = "nri-bundle"
   namespace        = "newrelic"
   create_namespace = true
+  timeout          = 600
+  wait             = false
 
   set {
     name  = "global.licenseKey"
@@ -47,5 +49,5 @@ resource "helm_release" "newrelic" {
     value = "false"
   }
 
-  depends_on = [module.eks]
+  depends_on = [aws_eks_node_group.default]
 }
