@@ -22,6 +22,8 @@ resource "kubernetes_config_map" "gearflow" {
   data = {
     ASPNETCORE_ENVIRONMENT    = "Production"
     ASPNETCORE_HTTP_PORTS     = "8080"
+    # Habilita a massa de dados fictícios (demo) mesmo em Production.
+    "Seed__EnableDevData"     = "true"
     "Jwt__Issuer"             = "GearFlow.Api"
     "Jwt__Audience"           = "GearFlow.Client"
     "Jwt__AccessTokenMinutes" = "30"

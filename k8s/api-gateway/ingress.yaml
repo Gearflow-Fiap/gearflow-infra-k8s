@@ -1,6 +1,28 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
+  name: gearflow-ingress-public
+  namespace: gearflow
+  annotations:
+    # Path mais específico que /api → Kong prioriza esta rota. Login/registro/refresh
+    # são anônimos por natureza (é como o staff OBTÉM o JWT); sem o plugin gearflow-jwt aqui.
+    konghq.com/plugins: gearflow-rate-limit
+spec:
+  ingressClassName: kong
+  rules:
+    - http:
+        paths:
+          - path: /api/identity/auth
+            pathType: Prefix
+            backend:
+              service:
+                name: gearflow-api-service
+                port:
+                  number: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
   name: gearflow-ingress
   namespace: gearflow
   annotations:
