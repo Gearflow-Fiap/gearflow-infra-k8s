@@ -69,7 +69,9 @@ gearflow-infra-k8s/
 │   ├── variables.tf      # Inputs: cluster, banco (Repo 3), lambdas (Repo 1)
 │   ├── outputs.tf        # Endpoints do cluster e API Gateway
 │   ├── api-gateway.tf    # Kong via Helm + ExternalName para Lambdas
-│   └── monitoring.tf     # New Relic nri-bundle via Helm
+│   ├── monitoring.tf     # New Relic nri-bundle via Helm
+│   ├── newrelic-dashboard.tf # Dashboard custom (OS, latência, CPU/memória, uptime)
+│   └── newrelic-alerts.tf    # Políticas/condições de alerta + monitor sintético de uptime
 ├── k8s/
 │   ├── gearflow/         # Manifests do namespace da aplicação
 │   │   ├── namespace.yaml
@@ -107,7 +109,9 @@ gearflow-infra-k8s/
 | `AWS_SECRET_ACCESS_KEY` | Credencial AWS | AWS IAM |
 | `JWT_SIGNING_KEY` | Chave de assinatura JWT | Combinado com Repos 1 e 4 |
 | `DB_PASSWORD` | Senha do banco gerenciado | Repo 3 |
-| `NEWRELIC_LICENSE_KEY` | License key do New Relic | New Relic UI → API Keys |
+| `NEWRELIC_LICENSE_KEY` | License key do New Relic (ingestão nri-bundle/APM) | New Relic UI → API Keys |
+| `NEWRELIC_API_KEY` | User API Key do New Relic (NerdGraph, gerencia o dashboard via Terraform) | New Relic UI → API Keys |
+| `NEWRELIC_ACCOUNT_ID` | ID da conta New Relic | New Relic UI → Administração |
 
 ### Variables (valores não sensíveis)
 
@@ -121,6 +125,7 @@ gearflow-infra-k8s/
 | `LAMBDA_VALIDATE_CPF_URL` | URL da Lambda validate-cpf | Output do Repo 1 |
 | `LAMBDA_CHECK_CLIENT_URL` | URL da Lambda check-client | Output do Repo 1 |
 | `LAMBDA_GENERATE_TOKEN_URL` | URL da Lambda generate-token | Output do Repo 1 |
+| `NEWRELIC_ALERT_EMAIL` | E-mail que recebe os alertas do New Relic (latência, CPU/memória, healthcheck/uptime, falhas de processamento de OS) | Definido pelo time — configurar como repository variable antes do apply |
 
 ---
 

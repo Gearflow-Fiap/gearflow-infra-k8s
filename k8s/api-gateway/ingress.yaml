@@ -19,6 +19,14 @@ spec:
                 name: gearflow-api-service
                 port:
                   number: 8080
+          # Health/uptime (New Relic Synthetics) — precisa ser anônimo, sem plugin JWT.
+          - path: /health
+            pathType: Prefix
+            backend:
+              service:
+                name: gearflow-api-service
+                port:
+                  number: 8080
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress

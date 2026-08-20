@@ -22,3 +22,13 @@ output "configure_kubectl" {
   description = "Comando para configurar o kubectl apontando para este cluster"
   value       = "aws eks update-kubeconfig --region ${var.aws_region} --name ${aws_eks_cluster.gearflow.name}"
 }
+
+output "newrelic_dashboard_url" {
+  description = "URL do dashboard custom GearFlow no New Relic"
+  value       = newrelic_one_dashboard.gearflow.permalink
+}
+
+output "newrelic_alert_policy_id" {
+  description = "ID da política de alertas GearFlow no New Relic (latência, CPU/memória, uptime, falhas de OS)"
+  value       = newrelic_alert_policy.gearflow.id
+}

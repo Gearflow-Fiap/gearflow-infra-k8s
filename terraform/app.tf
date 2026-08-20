@@ -9,6 +9,9 @@ resource "kubernetes_secret" "gearflow" {
   data = {
     "ConnectionStrings__GearFlow" = "Server=${var.db_endpoint},${var.db_port};Database=${var.db_name};User Id=${var.db_user};Password=${var.db_password};Encrypt=True;TrustServerCertificate=True"
     "Jwt__Secret"                 = var.jwt_signing_key
+    # Agente APM .NET (lido pelo Dockerfile/newrelic.config) + header OTLP para métricas de negócio
+    NEW_RELIC_LICENSE_KEY       = var.newrelic_license_key
+    OTEL_EXPORTER_OTLP_HEADERS  = "api-key=${var.newrelic_license_key}"
   }
 }
 
@@ -33,6 +36,9 @@ resource "kubernetes_config_map" "gearflow" {
     "Email__Port"             = "1025"
     "Email__From"             = "sistema@gearflow.com"
     "App__PublicBaseUrl"      = "https://${var.cluster_name}.api.gearflow.com"
+    # Métricas de negócio (serviceorders.created, serviceorder.status.duration, integration.errors)
+    # exportadas via OTLP para o New Relic — alimentam o dashboard custom (newrelic-dashboard.tf).
+    "Otlp__Endpoint"          = "https://otlp.nr-data.net:4317"
     # New Relic APM
     CORECLR_ENABLE_PROFILING                              = "1"
     CORECLR_PROFILER                                      = "{36032161-FFC0-4B61-B559-F6C5D41BAE5A}"
