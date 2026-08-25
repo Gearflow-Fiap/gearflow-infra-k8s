@@ -2,7 +2,7 @@ terraform {
   required_version = ">= 1.6"
 
   cloud {
-    organization = "gearflowfiap"
+    organization = "gearflowfiapmurilo"
 
     workspaces {
       name = "gearflow-infra-k8s"
@@ -26,6 +26,10 @@ terraform {
       source  = "hashicorp/null"
       version = "~> 3.2"
     }
+    newrelic = {
+      source  = "newrelic/newrelic"
+      version = "~> 3.0"
+    }
   }
 }
 
@@ -34,19 +38,27 @@ provider "aws" {
 }
 
 data "aws_eks_cluster_auth" "gearflow" {
-  name = module.eks.cluster_name
+  name = aws_eks_cluster.gearflow.name
 }
 
 provider "kubernetes" {
-  host                   = module.eks.cluster_endpoint
-  cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+  host                   = aws_eks_cluster.gearflow.endpoint
+  cluster_ca_certificate = base64decode(aws_eks_cluster.gearflow.certificate_authority[0].data)
   token                  = data.aws_eks_cluster_auth.gearflow.token
 }
 
 provider "helm" {
   kubernetes {
-    host                   = module.eks.cluster_endpoint
-    cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+    host                   = aws_eks_cluster.gearflow.endpoint
+    cluster_ca_certificate = base64decode(aws_eks_cluster.gearflow.certificate_authority[0].data)
     token                  = data.aws_eks_cluster_auth.gearflow.token
   }
+}
+
+# API Key de usuário (NerdGraph) — gerencia dashboards/alertas via Terraform.
+# Diferente da license key (ingestão de dados), usada pelo nri-bundle/APM.
+provider "newrelic" {
+  account_id = var.newrelic_account_id
+  api_key    = var.newrelic_api_key
+  region     = "US"
 }

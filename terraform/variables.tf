@@ -91,3 +91,22 @@ variable "newrelic_license_key" {
   type        = string
   sensitive   = true
 }
+
+# ── Dashboard New Relic (NerdGraph — provider newrelic) ──────────────────
+
+variable "newrelic_account_id" {
+  description = "ID da conta New Relic (New Relic UI → gear de Administração → ID da conta)"
+  type        = string
+}
+
+variable "newrelic_api_key" {
+  description = "User API Key do New Relic (NerdGraph) para gerenciar dashboards via Terraform — diferente da license key de ingestão"
+  type        = string
+  sensitive   = true
+}
+
+variable "newrelic_alert_email" {
+  description = "E-mail que recebe os alertas do New Relic (latência, recursos do Kubernetes, healthcheck/uptime e falhas de processamento de OS)"
+  type        = string
+  default     = "rm371559@fiap.com.br"
+}
