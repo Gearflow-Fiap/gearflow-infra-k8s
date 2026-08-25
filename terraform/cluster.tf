@@ -25,10 +25,14 @@ module "vpc" {
 
 # ── EKS Cluster ───────────────────────────────────────────────────────────
 # Usando recursos nativos para evitar iam:GetRole bloqueado no AWS Academy
+# LabRole existe em toda conta do AWS Academy, mas a conta muda a cada
+# sessão de lab — por isso o account_id é resolvido dinamicamente.
+data "aws_caller_identity" "current" {}
+
 resource "aws_eks_cluster" "gearflow" {
   name     = var.cluster_name
   version  = "1.31"
-  role_arn = "arn:aws:iam::269224082939:role/LabRole"
+  role_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/LabRole"
 
   vpc_config {
     subnet_ids              = module.vpc.private_subnets
@@ -42,7 +46,7 @@ resource "aws_eks_cluster" "gearflow" {
 resource "aws_eks_node_group" "default" {
   cluster_name    = aws_eks_cluster.gearflow.name
   node_group_name = "default"
-  node_role_arn   = "arn:aws:iam::269224082939:role/LabRole"
+  node_role_arn   = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/LabRole"
   subnet_ids      = module.vpc.private_subnets
   instance_types  = [var.node_instance_type]
 
