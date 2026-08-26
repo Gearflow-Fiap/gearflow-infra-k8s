@@ -17,6 +17,14 @@ resource "helm_release" "kong" {
   depends_on = [aws_eks_node_group.default]
 }
 
+# helm_release.kong não espera pods/LB (wait = false), e o hostname do ELB só é
+# preenchido pelo cloud-controller da AWS alguns instantes depois do Service existir —
+# essa espera evita "Invalid index" ao ler kong_gateway_proxy.status logo em seguida.
+resource "time_sleep" "wait_for_kong_lb" {
+  depends_on      = [helm_release.kong]
+  create_duration = "120s"
+}
+
 # Hostname real do ELB criado pelo Service LoadBalancer do Kong — só existe depois do
 # helm_release.kong provisionar. Usado pelo monitor de uptime do New Relic (newrelic-alerts.tf)
 # em vez de um domínio fictício.
@@ -26,7 +34,7 @@ data "kubernetes_service" "kong_gateway_proxy" {
     namespace = "kong"
   }
 
-  depends_on = [helm_release.kong]
+  depends_on = [time_sleep.wait_for_kong_lb]
 }
 
 # ── Namespace para o proxy das Lambdas ────────────────────────────────────
