@@ -7,7 +7,9 @@ resource "kubernetes_secret" "gearflow" {
   }
 
   data = {
-    "ConnectionStrings__GearFlow" = "Server=${var.db_endpoint},${var.db_port};Database=${var.db_name};User Id=${var.db_user};Password=${var.db_password};Encrypt=True;TrustServerCertificate=True"
+    # var.db_endpoint às vezes vem com a porta já embutida (ex.: output do
+    # gearflow-infra-database inclui ":1433") — normaliza pra não duplicar a porta.
+    "ConnectionStrings__GearFlow" = "Server=${split(":", var.db_endpoint)[0]},${var.db_port};Database=${var.db_name};User Id=${var.db_user};Password=${var.db_password};Encrypt=True;TrustServerCertificate=True"
     "Jwt__Secret"                 = var.jwt_signing_key
     # Agente APM .NET (lido pelo Dockerfile/newrelic.config) + header OTLP para métricas de negócio
     NEW_RELIC_LICENSE_KEY       = var.newrelic_license_key
